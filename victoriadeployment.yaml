@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treasure-victoria
+  namespace: treasure-hunt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: treasure-victoria
+  template:
+    metadata:
+      labels:
+        app: treasure-victoria
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/vovleras/treasure-new:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: TITLE
+              value: "Treasure Hunt — Victoria"
+            - name: STUDENT
+              value: "Victoria"
+            - name: SALT
+              value: "DS3univalle"
+            - name: KEY_HASH
+              value: "9c2a64c603ef9489c709a2c977c0cea3ff9582cd8aba98935bcd9a499fc3c59b"
+            - name: CLUE
+              valueFrom:
+                secretKeyRef:
+                  name: victoria-clue
+                  key: CLUE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: treasure-victoria
+  namespace: treasure-hunt
+spec:
+  selector:
+    app: treasure-victoria
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: NodePort
